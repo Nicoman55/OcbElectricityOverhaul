@@ -1,6 +1,4 @@
 .vstags
 *.pdb
-/bin
-/obj
 /0_WORK
 /build
