@@ -2,3 +2,4 @@
 *.pdb
 /0_WORK
 /build
+.vs/
