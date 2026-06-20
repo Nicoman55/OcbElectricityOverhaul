@@ -1,0 +1,93 @@
+<configs>
+	<!-- Gears replaces the vanilla tabsHeader entirely with its own paginated tab   -->
+	<!-- system (GameSettingsSelector controller with back/forward buttons).         -->
+	<!-- We do NOT touch tabButtons here — Gears manages the tab header itself.     -->
+	<!-- We only need to insert our Power tab content after the Multiplayer tab.    -->
+
+	<insertAfter xpath="/windows/window[@name='newContinueGame']//rect[@name='tabs']/rect[@name='tabsContents']/rect[@tab_key='xuiGameSettingsMultiplayer']">
+		<rect controller="TabSelectorTab" tab_key="xuiGameSettingsPower">
+			<grid pos="6,-77" rows="13" cell_width="525" cell_height="45" repeat_content="false" arrangement="vertical">
+				<gameoption
+					name="DegradationFactor"
+					title="goDegradationFactor"
+					value_wrap="false"
+					value_type="int"
+					values="0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 250, 300, 500, 1000"
+					display_names=""
+					value_localization_prefix="goPercentFormat"
+				/>
+				<gameoption name="PreferFuelOverBattery" title="goPreferFuelOverBattery" value_wrap="false" value_type="bool" values="" display_names="" value_localization_prefix="xuiComboOnOff"/>
+				<gameoption
+					name="BatteryPowerPerUse"
+					title="goBatteryPowerPerUse"
+					value_wrap="false"
+					value_type="int"
+					values="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 125"
+					display_names=""
+				/>
+				<gameoption
+					name="FuelPowerPerUse"
+					title="goFuelPowerPerUse"
+					value_wrap="false"
+					value_type="int"
+					values="1, 5, 10, 15, 25, 50, 75, 100, 200, 300, 400, 500, 750, 1000, 1250, 1500, 2000, 3000, 4000, 5000, 7500, 11250"
+					display_names=""
+				/>
+				<gameoption
+					name="PowerPerPanel"
+					title="goPowerPerPanel"
+					value_wrap="false"
+					value_type="int"
+					values="1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 125"
+					display_names=""
+					value_localization_prefix="goPowerFormat"
+				/>
+				<gameoption
+					name="PowerPerEngine"
+					title="goPowerPerEngine"
+					value_wrap="false"
+					value_type="int"
+					values="1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 125"
+					display_names=""
+					value_localization_prefix="goPowerFormat"
+				/>
+				<gameoption
+					name="PowerPerBattery"
+					title="goPowerPerBattery"
+					value_wrap="false"
+					value_type="int"
+					values="1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 125"
+					display_names=""
+					value_localization_prefix="goPowerFormat"
+				/>
+				<gameoption
+					name="MinPowerForCharging"
+					title="goMinPowerForCharging"
+					value_wrap="false"
+					value_type="int"
+					values="0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90"
+					display_names=""
+					value_localization_prefix="goPowerFormat"
+				/>
+				<gameoption
+					name="BatteryChargePercentFull"
+					title="goBatteryChargePercentFull"
+					value_wrap="false"
+					value_type="int"
+					values="10, 20, 03, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200"
+					display_names=""
+					value_localization_prefix="goPercentFormat"
+				/>
+				<gameoption
+					name="BatteryChargePercentEmpty"
+					title="goBatteryChargePercentEmpty"
+					value_wrap="false"
+					value_type="int"
+					values="10, 20, 03, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200"
+					display_names=""
+					value_localization_prefix="goPercentFormat"
+				/>
+			</grid>
+		</rect>
+	</insertAfter>
+</configs>

@@ -27,6 +27,10 @@
 		<echo error="EO: No Ravenhearst Support for V1 yet"/>
 		<modinc path="windows.a20.rh.xml"/>
 	</modelsif>
+	<modelsif condition="Gears">
+		<echo log="EO: Including Gears patches"/>
+		<modinc path="windows.v2.gears.xml"/>
+	</modelsif>
 	<modelse>
 		<modinc path="windows.v2.xml"/>
 	</modelse>
