@@ -88,7 +88,9 @@ static class PowerDistributionPatch
             power -= num;
             CheckForActiveChange.Invoke(__instance, null);
             // Fix weird vanilla implementation "bug"
-            ___isActive = ___isTriggered;
+            ___isActive = ___isPowered && ___isTriggered;
+            // Log.Out("[EO-DEBUG] TimerRelay.HandlePowerReceived: incomingPower={0} requiredPower={1} newPowered={2} isTriggered={3} isActive={4}",
+            //     num, __instance.RequiredPower, newPowered, ___isTriggered, ___isActive);
             return false;
         }
     }
@@ -146,6 +148,9 @@ static class PowerDistributionPatch
                     __instance.IsPowered & parentIsOn, __instance.IsTriggered);
                 __instance.TileEntity.SetModified();
             }
+
+            // Log.Out("[EO-DEBUG] TimerRelay.HandlePowerUpdate: parentIsOn={0} isPowered={1} isTriggered={2} isActive={3} activating={4}",
+            //     parentIsOn, __instance.IsPowered, __instance.IsTriggered, __instance.IsActive, __instance.IsPowered & parentIsOn);
 
             ___hasChangesLocal = true;
             return false;

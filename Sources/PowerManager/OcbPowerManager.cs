@@ -649,6 +649,29 @@ public class OcbPowerManager : PowerManagerBase
     // ####################################################################
     // ####################################################################
 
+    // Recursively deactivate all children of an unpowered/inactive item
+    // so their visual state is correctly updated at any depth in the chain
+    private void DeactivateChildren(PowerItem parent)
+    {
+        for (int i = 0; i < parent.Children.Count; ++i)
+        {
+            PowerItem child = parent.Children[i];
+            bool wasChildPowered = child.IsPowered;
+            // Feed zero power so IsPowered gets reset correctly
+            ushort zeroPower = 0;
+            child.HandlePowerReceived(ref zeroPower);
+            if (wasChildPowered)
+            {
+                child.HandlePowerUpdate(false);
+            }
+            // Recurse into grandchildren regardless, to ensure full chain is deactivated
+            DeactivateChildren(child);
+        }
+    }
+
+    // ####################################################################
+    // ####################################################################
+
     // Our bread and butter function that drives the whole electricity grid.
     public void ProcessPowerSource(OcbPowerSource root)
     {
@@ -759,22 +782,41 @@ public class OcbPowerManager : PowerManagerBase
                 lendable -= used;
                 // Account for consumed power
                 root.ConsumerUsed += used;
-                // Process further children of consumers
-                for (int i = 0; i < child.Children.Count; ++i)
-                {
-                    // Check translates to `is PowerConsumer`
-                    if (!(child.Children[i] is PowerTrigger))
-                    {
-                        // Check if consumer has no "off" trigger group upstream
-                        // ToDo: could probably be optimized (low hanging fruit)
-                        if (!IsTriggerActive(child.Children[i]))
-                        {
-                            continue;
-                        }
-                    }
 
-                    // Add further children to be processed
-                    children.Enqueue(child.Children[i]);
+                // For triggers (switches etc.), if not active, zero out power
+                // so downstream children receive no power
+                ushort powerForChildren = power;
+                if (child is PowerTrigger trigger && !trigger.IsActive)
+                {
+                    powerForChildren = 0;
+                }
+
+                // Process further children of consumers
+                if (child.IsPowered || (child is PowerTrigger activeTrigger && activeTrigger.IsActive))
+                {
+                    for (int i = 0; i < child.Children.Count; ++i)
+                    {
+                        // Check translates to `is PowerConsumer`
+                        if (!(child.Children[i] is PowerTrigger))
+                        {
+                            // Check if consumer has no "off" trigger group upstream
+                            // ToDo: could probably be optimized (low hanging fruit)
+                            if (!IsTriggerActive(child.Children[i]))
+                            {
+                                continue;
+                            }
+                        }
+                        // Add further children to be processed
+                        children.Enqueue(child.Children[i]);
+                    }
+                    // Ensure downstream children receive correct power
+                    power = powerForChildren;
+                }
+                else
+                {
+                    // Explicitly deactivate all skipped children recursively
+                    // so their visual state updates at all depths
+                    DeactivateChildren(child);
                 }
 
                 if (wasPowered != child.IsPowered)
