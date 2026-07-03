@@ -121,6 +121,8 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Sources\Commands\ConsoleCmdDrainBattery.cs" />
+    <Compile Include="Sources\Harmony\BatteryChargeInfoPatch.cs" />
     <Compile Include="Sources\Harmony\CustomActivationTextPatch.cs" />
     <Compile Include="Sources\Harmony\CustomGamePrefsPatch.cs" />
     <Compile Include="Sources\Harmony\ElectricityOverhaulPatch.cs" />

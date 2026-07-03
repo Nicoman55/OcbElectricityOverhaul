@@ -139,10 +139,17 @@ public class OcbPowerSource : PowerSource
             RecalcChargingDemand(bank);
         }
         this.StackPower = 0;
+        bool isBatteryBank = this is OcbPowerBatteryBank;
         foreach (var stack in this.Stacks)
         {
             if (stack.IsEmpty()) continue;
-            if (stack.itemValue.MaxUseTimes > 0
+            // For battery banks `UseTimes` is repurposed as the charge
+            // level, so a fully discharged battery is NOT defect and
+            // must still count towards the bank's power capacity.
+            // Otherwise a bank with only empty batteries turns itself
+            // off and can never be charged again (charging deadlock).
+            if (!isBatteryBank
+                && stack.itemValue.MaxUseTimes > 0
                 && stack.itemValue.UseTimes >=
                 stack.itemValue.MaxUseTimes) continue;
             this.StackPower += (ushort)(

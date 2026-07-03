@@ -783,16 +783,19 @@ public class OcbPowerManager : PowerManagerBase
                 // Account for consumed power
                 root.ConsumerUsed += used;
 
-                // For triggers (switches etc.), if not active, zero out power
-                // so downstream children receive no power
-                ushort powerForChildren = power;
-                if (child is PowerTrigger trigger && !trigger.IsActive)
-                {
-                    powerForChildren = 0;
-                }
+                // For a trigger child (switch, relay, motion sensor, ...)
+                // its own IsActive state is authoritative for whether its
+                // subtree should receive power - this must be evaluated
+                // per branch and must never leak into sibling branches.
+                // For a plain consumer, whether it actually received its
+                // required power decides if further children downstream
+                // of it (e.g. a series-wired second bulb) get power too.
+                bool proceedChildren = child is PowerTrigger trigger
+                    ? trigger.IsActive
+                    : child.IsPowered;
 
                 // Process further children of consumers
-                if (child.IsPowered || (child is PowerTrigger activeTrigger && activeTrigger.IsActive))
+                if (proceedChildren)
                 {
                     for (int i = 0; i < child.Children.Count; ++i)
                     {
@@ -809,8 +812,6 @@ public class OcbPowerManager : PowerManagerBase
                         // Add further children to be processed
                         children.Enqueue(child.Children[i]);
                     }
-                    // Ensure downstream children receive correct power
-                    power = powerForChildren;
                 }
                 else
                 {

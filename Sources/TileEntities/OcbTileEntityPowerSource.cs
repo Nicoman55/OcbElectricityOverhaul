@@ -1,5 +1,14 @@
-﻿public class OcbTileEntityPowerSource : TileEntityPowerSource
+﻿using UnityEngine;
+
+public class OcbTileEntityPowerSource : TileEntityPowerSource
 {
+
+    // ####################################################################
+    // ####################################################################
+
+    // Current mute state applied to the audio sources of the
+    // block models "Activated" child (which holds the hum loop)
+    private bool humMuted;
 
     // ####################################################################
     // ####################################################################
@@ -161,6 +170,79 @@
                 data.LightLevel = _br.ReadUInt16();
                 break;
         }
+    }
+
+    // ####################################################################
+    // ####################################################################
+
+    // The battery bank hum loop is played by an AudioPlayer component
+    // (7DTD's own audio wrapper, not a Unity AudioSource) that sits on
+    // the block models "Activated" child GameObject. Vanilla toggles
+    // that whole GameObject's active state together with the on/off
+    // switch. Since we keep empty banks switched on (so they can be
+    // recharged), we instead call AudioPlayer.StopAudio()/Play()
+    // directly while the bank can neither produce power (all batteries
+    // empty) nor is currently charging, without touching SetActive so
+    // we don't interfere with vanilla's own on/off handling.
+    public override void UpdateTick(World world)
+    {
+        base.UpdateTick(world);
+        UpdateBatteryBankHum();
+    }
+
+    static readonly System.Reflection.MethodInfo AudioPlayerStopAudio =
+        HarmonyLib.AccessTools.Method(typeof(AudioPlayer), "StopAudio");
+
+    private void UpdateBatteryBankHum()
+    {
+        if (PowerItemType != PowerItem.PowerItemTypes.BatteryBank) return;
+        bool isOn; ushort maxProduction; ushort chargingUsed;
+        if (SingletonMonoBehaviour<ConnectionManager>.Instance.IsServer)
+        {
+            if (!(PowerItem is OcbPowerBatteryBank bank)) return;
+            isOn = bank.IsOn;
+            maxProduction = bank.MaxProduction;
+            chargingUsed = bank.ChargingUsed;
+        }
+        else
+        {
+            // On remote clients this data is only refreshed when the
+            // tile entity is synced, so the hum may react delayed
+            var data = ClientData;
+            if (data == null) return;
+            isOn = data.IsOn;
+            maxProduction = data.MaxProduction;
+            chargingUsed = data.ChargingUsed;
+        }
+        if (!isOn)
+        {
+            // Bank is fully off; vanilla already stops the hum by
+            // disabling the "Activated" GameObject (SetActive(false)).
+            // Leave that alone and just reset our tracked state so
+            // the next power-on re-evaluates cleanly from scratch.
+            humMuted = false;
+            return;
+        }
+        bool mute = maxProduction <= 0 && chargingUsed <= 0;
+        // Only touch the model on actual state changes
+        if (mute == humMuted) return;
+        // Dedicated servers have no transforms (guarded below)
+        if (chunk == null) return;
+        BlockEntityData bed = chunk.GetBlockEntity(ToWorldPos());
+        if (bed == null || !bed.bHasTransform || bed.transform == null) return;
+        Transform activated = bed.transform.Find("Activated");
+        if (activated == null) return;
+        AudioPlayer player = activated.GetComponent<AudioPlayer>();
+        if (player == null) return;
+        if (mute)
+        {
+            AudioPlayerStopAudio.Invoke(player, null);
+        }
+        else
+        {
+            player.Play();
+        }
+        humMuted = mute;
     }
 
     // ####################################################################
