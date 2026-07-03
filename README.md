@@ -252,6 +252,18 @@ basic information about all grids (most notably the average update time):
 
 ## Changelog
 
+### Version 2.2.3.NIC.1
+
+- Fix timer relay staying active regardless of upstream switch state
+- Fix stale power/visual state not propagating down the full chain  
+  A light behind a second switch could stay lit despite having no power
+- Fix cross-branch power corruption caused by an inactive trigger  
+  An inactive relay could incorrectly cut power to unrelated sibling branches
+- Fix battery bank charging deadlock with fully discharged batteries  
+  A bank with only empty batteries could get stuck off and never recharge
+- Fix battery bank idle hum not stopping when idle or misbehaving when off
+- Add live battery charge percentage to the item info description
+
 ### Version 2.2.3
 
 - Add patch for newly added method
@@ -415,8 +427,8 @@ basic information about all grids (most notably the average update time):
 Developed initially for version A19.6(b8), updated through A21.1(b16).
 
 [1]: https://github.com/HAL-NINE-THOUSAND/DMT
-[2]: https://github.com/OCB7D2D/ElectricityOverhaul/actions/workflows/ci.yml
-[3]: https://github.com/OCB7D2D/ElectricityOverhaul/actions/workflows/ci.yml/badge.svg
+[2]: https://github.com/Nicoman55/OcbElectricityOverhaul/actions/workflows/ci.yml
+[3]: https://github.com/Nicoman55/OcbElectricityOverhaul/actions/workflows/ci.yml/badge.svg
 [4]: https://github.com/OCB7D2D/OcbRemoteDescription
 [5]: https://www.nexusmods.com/7daystodie/mods/1713
-[6]: https://github.com/OCB7D2D/ElectricityOverhaul/releases
+[6]: https://github.com/Nicoman55/OcbElectricityOverhaul/releases
